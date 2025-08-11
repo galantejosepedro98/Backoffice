@@ -1,0 +1,231 @@
+/* Live Dashboard Styles */
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: 600;
+}
+
+.stats-card {
+    text-align: center;
+    padding: 20px;
+}
+
+.stats-card .number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #3a3a3a;
+}
+
+.card-gradient .number {
+    color: white;
+}
+
+.stats-card .label {
+    font-size: 0.9rem;
+    color: #6c757d;
+    text-transform: uppercase;
+}
+
+.card-gradient .label {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.stats-card .icon {
+    font-size: 2rem;
+    margin-bottom: 15px;
+}
+
+/* Breakdown badges */
+.stats-card .breakdown {
+    margin-top: 10px;
+}
+
+.stats-card .breakdown .badge {
+    margin: 0 3px;
+    font-size: 0.8rem;
+    padding: 5px 8px;
+    font-weight: normal;
+}
+
+.card-blue {
+    background: linear-gradient(45deg, #4099ff, #73b4ff);
+    color: white;
+}
+
+.card-green {
+    background: linear-gradient(45deg, #2ed8b6, #59e0c5);
+    color: white;
+}
+
+.card-yellow {
+    background: linear-gradient(45deg, #FFB64D, #ffcb80);
+    color: white;
+}
+
+.card-red {
+    background: linear-gradient(45deg, #FF5370, #ff869a);
+    color: white;
+}
+
+.card-purple {
+    background: linear-gradient(45deg, #8C54FF, #A56FFF);
+    color: white;
+}
+
+.card-gradient {
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.1);
+}
+
+.check-in-item {
+    border-bottom: 1px solid #eee;
+    padding: 10px 0;
+}
+
+.check-in-item:last-child {
+    border-bottom: none;
+}
+
+.check-in-time {
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.progress {
+    height: 10px;
+    border-radius: 5px;
+}
+
+.chart-container {
+    position: relative;
+    height: 250px;
+}
+
+/* Live indicator animation */
+.live-indicator {
+    display: inline-block;
+    margin-right: 10px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+.refresh-countdown {
+    font-size: 0.8rem;
+    color: #6c757d;
+}
+
+#event-title {
+    font-weight: 700;
+    position: relative;
+    display: inline-block;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Recent check-ins list */
+.check-ins-list {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+/* Responsive fixes */
+@media (max-width: 768px) {
+    .stats-card .number {
+        font-size: 2rem;
+    }
+    
+    .stats-card .icon {
+        font-size: 1.5rem;
+    }
+}
+
+/* Badge styles */
+.badge-success {
+    background-color: #2ed8b6;
+}
+
+.badge-warning {
+    background-color: #FFB64D;
+}
+
+.badge-danger {
+    background-color: #FF5370;
+}
+
+/* Animation for numbers */
+.animated-number {
+    transition: all 0.5s ease-in-out;
+}
+
+/* Highlight animation for updated elements */
+.highlight {
+    animation: highlight-pulse 1s ease-in-out;
+}
+
+@keyframes highlight-pulse {
+    0% {
+        background-color: rgba(255, 250, 118, 0);
+    }
+    50% {
+        background-color: rgba(255, 250, 118, 0.3);
+    }
+    100% {
+        background-color: rgba(255, 250, 118, 0);
+    }
+}
+
+/* Add animation for the badges */
+.stats-card .badge {
+    transition: all 0.3s;
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}

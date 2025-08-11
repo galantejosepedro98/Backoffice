@@ -1,0 +1,230 @@
+<?php
+// Arquivo para funcionalidade do sidebar de equipamentos
+if (!isset($id)) {
+    $id = isset($_GET['id']) ? (int)$_GET['id'] : null;
+}
+?>
+<div id="equipmentSidebar" class="sidebar">
+    <div class="sidebar-header">
+        <h2>Adicionar Equipamento</h2>
+        <button class="close-sidebar" onclick="closeEquipmentSidebar()">&times;</button>
+    </div>
+
+    <div id="equipmentList" class="equipment-list">
+        <!-- Lista de equipamentos será carregada aqui via JavaScript -->
+    </div>
+</div>
+
+<script>
+let currentPosId = null;
+let equipmentData = [];
+
+function openEquipmentSidebar(event, posId) {
+    event.stopPropagation(); 
+    currentPosId = posId;
+    const sidebar = document.getElementById('equipmentSidebar');
+    const equipmentList = document.getElementById('equipmentList');
+    
+    sidebar.classList.add('active');
+    equipmentList.innerHTML = '<div class="loading">Carregando equipamentos...</div>';
+    
+    fetch('get_available_equipment.php')
+        .then(response => response.json())
+        .then(data => {
+            equipmentData = data;
+            renderEquipmentList(data);
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            equipmentList.innerHTML = '<div class="error">Erro ao carregar equipamentos</div>';
+        });
+}
+
+function renderEquipmentList(equipment) {
+    const equipmentList = document.getElementById('equipmentList');
+    equipmentList.innerHTML = '';
+    
+    if (!equipment || equipment.length === 0) {
+        equipmentList.innerHTML = '<div class="no-equipment">Nenhum equipamento disponível</div>';
+        return;
+    }
+    
+    equipment.forEach(equipment => {
+        const item = document.createElement('div');
+        item.className = 'equipment-item';                
+        const serialNumber = equipment.serial_number || '(Sem número de série)';
+        item.innerHTML = `
+            <strong>${serialNumber}</strong>
+            <span>${equipment.type_name || ''}</span>
+        `;
+        item.onclick = () => assignEquipment(equipment.id, currentPosId);
+        equipmentList.appendChild(item);
+    });
+}
+
+function closeEquipmentSidebar() {
+    const sidebar = document.getElementById('equipmentSidebar');
+    sidebar.classList.remove('active');
+    currentPosId = null;
+}
+
+function updatePosEquipment(posId) {
+    const eventId = <?php echo $id; ?>;
+    fetch(`get_pos_equipment.php?pos_id=${posId}&event_id=${eventId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const posContent = document.querySelector(`.pos-equipment-content[data-pos-id="${posId}"]`);
+                if (posContent) {
+                    posContent.innerHTML = data.html;
+                    
+                    // Expandir o PDV se estiver fechado
+                    const posHeader = posContent.closest('.pos-container').querySelector('.pos-header');
+                    const posContentDiv = posContent.closest('.pos-content');
+                    if (!posContentDiv.classList.contains('active')) {
+                        posContentDiv.classList.add('active');
+                    }
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao atualizar lista de equipamentos:', error);
+        });
+}
+
+function showNotification(message, isSuccess = true) {
+    const notification = document.createElement('div');
+    notification.className = `notification ${isSuccess ? 'success' : 'error'}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+function assignEquipment(equipmentId, posId) {
+    const item = event.currentTarget;
+    item.style.pointerEvents = 'none';
+    item.style.opacity = '0.5';
+
+    fetch('assign_equipment.php', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `equipment_id=${equipmentId}&pos_id=${posId}&event_id=${<?php echo $id; ?>}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove o equipamento da lista
+            equipmentData = equipmentData.filter(e => e.id !== equipmentId);
+            renderEquipmentList(equipmentData);
+            
+            // Atualiza a lista de equipamentos do PDV
+            updatePosEquipment(posId);
+            
+            // Mostra notificação de sucesso
+            showNotification('Equipamento associado com sucesso!', true);
+        } else {
+            showNotification(data.message || 'Erro ao associar equipamento', false);
+            item.style.pointerEvents = '';
+            item.style.opacity = '';
+        }
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        showNotification('Erro ao associar equipamento', false);
+        item.style.pointerEvents = '';
+        item.style.opacity = '';
+    });
+}
+</script>
+
+<style>
+.notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 25px;
+    border-radius: 4px;
+    color: white;
+    z-index: 1000;
+    animation: slide-in 0.5s ease;
+}
+
+.notification.success {
+    background-color: #4CAF50;
+}
+
+.notification.error {
+    background-color: #f44336;
+}
+
+.notification.fade-out {
+    animation: fade-out 0.5s ease;
+}
+
+@keyframes slide-in {
+    from { transform: translateX(100%); }
+    to { transform: translateX(0); }
+}
+
+@keyframes fade-out {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.equipment-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.equipment-item:hover {
+    background-color: #f5f5f5;
+}
+
+.equipment-item.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+
+.loading, .no-equipment, .error {
+    padding: 20px;
+    text-align: center;
+    color: #666;
+}
+
+.error {
+    color: #dc3545;
+}
+
+.equipment-item {
+    padding: 10px;
+    border: 1px solid #ddd;
+    margin-bottom: 5px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.equipment-item strong {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.equipment-item:hover {
+    background-color: #f5f5f5;
+}
+
+.equipment-list {
+    padding: 10px;
+    max-height: calc(100vh - 100px);
+    overflow-y: auto;
+}
+</style>

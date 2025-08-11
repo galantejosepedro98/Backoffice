@@ -1,0 +1,18 @@
+# Arquivos SQL (dados grandes)
+*.sql
+
+# Arquivos temporários
+*.tmp
+*.temp
+temp_*
+
+# Logs
+*.log
+
+# Arquivos do sistema
+.DS_Store
+Thumbs.db
+
+# Arquivos de backup
+*.bak
+*.backup
